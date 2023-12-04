@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Vendor Information Form</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f4;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.container {
+			max-width: 400px;
+			background: #f8f9fa;
+			/* Light gray background */
+			padding: 30px;
+			margin: 20px;
+			border-radius: 10px;
+			/* Increased border radius */
+			box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+			/* More pronounced box shadow */
+		}
+
+		h2 {
+			text-align: center;
+			color: #007BFF;
+			/* Blue heading text */
+		}
+
+		label {
+			font-weight: bold;
+			display: block;
+			margin-bottom: 10px;
+			/* Increased label margin */
+		}
+
+		input[type="text"],
+		input[type="number"] {
+			width: 100%;
+			padding: 10px;
+			margin-bottom: 20px;
+			/* Increased input margin */
+			border: 2px solid #ccc;
+			/* Thicker border */
+			border-radius: 5px;
+		}
+
+		input[type="submit"],
+		input[type="button"] {
+			background: #007BFF;
+			color: #fff;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			cursor: pointer;
+			display: block;
+			margin: 10px auto;
+		}
+
+		input[type="submit"]:hover,
+		input[type="button"]:hover {
+			background: #0056b3;
+		}
+
+		/* Toast styling */
+		.toast-above-form {
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			z-index: 1000;
+		}
+
+		.toast-body {
+			color: seagreen;
+			background: #fff;
+			/* White background for the toast */
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h2>Add Vendor</h2>
+		<form action="/add-vendor-data" method="POST" id="vendorForm">
+			<label for="vendorname">Vendor Name:</label>
+			<input type="text" id="vendorname" name="vendorname" required>
+
+			<label for="mobileNo">Mobile Number:</label>
+			<input type="number" id="mobileNo" name="mobileNo" required>
+
+			<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>
+			<button type="submit" class="btn btn-primary" id="backButton"
+				onclick="window.location.href='/'">Back</button>
+		</form>
+		<div id="messageDiv" style="display: none;"></div>
+	</div>
+	<div class="container">
+		<table class="table table-bordered table-striped">
+			<thead class="bg-primary text-white">
+				<tr>
+					<th class="custom-form-label">Vendor Name</th>
+					<th class="custom-form-label">MobileNo</th>
+			<tbody>
+				<tr th:each="inventory: ${vendorsList.content}">
+					<td th:text="${inventory.vendorname}" />
+					<td th:text="${inventory.mobileNo}" />
+				</tr>
+			</tbody>
+
+			</tr>
+			</thead>
+		</table>
+
+		<nav aria-label="Page navigation">
+			<ul class="pagination">
+				<li class="page-item" th:classappend="${currentPage > 0 ? 'enabled' : 'disabled'}">
+					<form action="/add-vendor-data" method="get">
+						<input type="hidden" name="page" th:value="${currentPage - 1}" />
+						<button type="submit" class="page-item" th:disabled="${currentPage == 0}">
+							Previous
+						</button>
+					</form>
+				</li>
+
+				<li class="page-item" th:each="i : ${#numbers.sequence(0, vendorsList.totalPages - 1)}"
+					th:classappend="${currentPage == i ? 'active' : ''}">
+					<form action="/add-vendor-data" method="get">
+
+						<input type="hidden" name="page" th:value=${i} />
+						<button type="submit" class="page-item">
+							<span th:text="${i + 1}"></span>
+						</button>
+					</form>
+				</li>
+				<li class="page-item" th:classappend="${currentPage >= vendorsList.totalPages - 1 ? 'disabled' : ''}">
+					<form action="/add-vendor-data" method="get">
+						<input type="hidden" name="page" th:value="${currentPage + 1}" />
+						<button type="submit" class="page-item"
+							th:disabled="${currentPage >= vendorsList.totalPages - 1}">
+							Next
+						</button>
+	</div>
+	<!--<div id="duplicateToast" class="toast toast-above-form" role="alert" aria-live="assertive" aria-atomic="true"
+		data-delay="5000">
+		<div class="toast-body">
+			Vendor already exists!
+		</div>-->
+	</divclass="container">
+
+	<div id="successToast" class="toast toast-above-form" role="alert" aria-live="assertive" aria-atomic="true"
+		data-delay="5000">
+		<div class="toast-body">
+			Data saved successfully!
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+		const form = document.getElementById('vendorForm');
+		const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+		const duplicateToast = new bootstrap.Toast(document.getElementById('duplicateToast'));
+		const messageDiv = document.getElementById('messageDiv');
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const formData = new FormData(form);
+			const response = await fetch('/add-vendor-data', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				const message = await response.text();
+				if (response.status === 200) {
+					successToast.show(); // Show success message for a new vendor
+					form.reset();
+				} else if (response.status === 500) {
+					duplicateToast.show(); // Show duplicate message for an existing vendor
+				} else {
+					showMessage(message, 'alert-warning'); // Display other messages or errors
+				}
+			} else {
+				showMessage('vendor already existing', 'alert-danger');
+			}
+		});
+
+		function showMessage(text, className) {
+			messageDiv.innerHTML = `<div class="alert ${className}" role="alert">${text}</div>`;
+			messageDiv.style.display = 'block';
+			setTimeout(() => {
+				messageDiv.innerHTML = '';
+				messageDiv.style.display = 'none';
+			}, 5000); // Hides the message after 5 seconds
+		}
+	</script>
+
+</body>
+
+</html>

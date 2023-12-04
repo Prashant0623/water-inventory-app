@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Water Inventory keeper</title>
+	<!-- Add Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		/* Additional CSS to center the form */
+		.center-form {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.toast-body {
+			color: black;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container center-form">
+		<div class="card p-4">
+			<h2 class="mb-4">Water Inventory Details</h2>
+			<form method="post" action="/add-water-inventory">
+
+				<div class="mb-3">
+					<label for="vendorame" class="form-label">Vendor Name:</label>
+					<select id="vendorname" name="vendorname" class="form-control">
+						<option th:text="select" />
+						<option th:each="vendor : ${allVendor}" th:value="${vendor.vendorId}"
+							th:text="${vendor.vendorname}" />
+					</select>
+				</div>
+
+				<div class="mb-3">
+					<label for="quantity" class="form-label">Quantity:</label>
+					<input type="number" id="quantity" name="quantity" class="form-control" required
+						oninput="calculateTotal()">
+				</div>
+
+				<div class="mb-3">
+					<label for="price" class="form-label">Price :</label>
+					<input type="number" id="price" name="price" class="form-control" step="0.01" required
+						oninput="calculateTotal()" value="25" readonly>
+				</div>
+
+				<div class="mb-3">
+					<label for="monthYear" class="form-label">Date:</label>
+					<input type="month" id="monthYear" name="date" min="" max="" value=""
+						onfocus="setMonthAndYear(this)" class="form-control" required>
+
+				</div>
+
+
+				<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>
+				<button type="submit" class="btn btn-primary" id="backButton"
+					onclick="window.location.href='/'">Back</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Add Bootstrap JavaScript and Popper.js -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+	<!-- Toast component for displaying success message -->
+	<div id="successToast" class="toast position-fixed top-0 start-50 translate-middle-x" role="alert"
+		aria-live="assertive" aria-atomic="true" data-delay="5000">
+
+		<div class="toast-body">
+			Success!!!!! Data has been saved successfully!
+		</div>
+	</div>
+
+	<script>
+
+		function setMonthAndYear(input) {
+			// Get the current date and format it as 'YYYY-MM'
+			let currentDate = new Date();
+			let year = currentDate.getFullYear();
+			let month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+			let currentMonthYear = `${year}-${month}`;
+
+			// Set the default value for the input element
+			input.value = currentMonthYear;
+
+			// Set the min and max attributes to restrict the selection to the current month
+			input.min = currentMonthYear;
+			input.max = currentMonthYear;
+		}
+
+		function calculateTotal() {
+			const quantity = parseFloat(document.getElementById("quantity").value);
+			const price = parseFloat(document.getElementById("price").value);
+			const totalPrice = quantity * price;
+			document.getElementById("totalPrice").value = totalPrice.toFixed(2);
+		}
+
+		// Function to display the success message using Bootstrap's toast component
+		function showSuccessMessage() {
+			const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+			successToast.show();
+		}
+
+		const form = document.querySelector('form');
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const formData = new FormData(form);
+			const response = await fetch('/add-water-inventory', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				// Data saved successfully, show the success message
+				showSuccessMessage();
+				// Clear the form
+				form.reset();
+			} else {
+				alert('Failed to save data. Please try again.');
+			}
+		});
+
+	</script>
+
+</body>
+
+</html>

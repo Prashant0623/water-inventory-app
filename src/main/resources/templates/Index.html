@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Water Inventory App</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		/* Global styles */
+		body {
+			font-family: 'Poppins', sans-serif;
+			background-color: #f7f7f7;
+			color: #333;
+			margin: 0;
+			padding: 0;
+		}
+
+		.custom-primary {
+			color: #ff6b6b;
+		}
+
+		.custom-secondary {
+			color: #ff6b6b;
+		}
+
+		.container {
+			max-width: 1100px;
+			margin: 10px auto;
+			padding: 25px;
+			background-color: #fff;
+			border-radius: 6px;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.custom-h1 {
+			margin-bottom: 10px;
+			/* Adjusted margin-bottom */
+			color: #ff6b6b;
+			text-align: center;
+			font-size: 35px;
+		}
+
+		.card {
+			border: 1px solid #eee;
+			border-radius: 8px;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			margin-bottom: 40px;
+			padding: 20px;
+		}
+
+		.card-title {
+			color: #ff6b6b;
+			font-size: 24px;
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+		.form-control {
+			border-radius: 5px;
+		}
+
+		.btn {
+			font-size: 18px;
+			padding: 10px 20px;
+			border-radius: 5px;
+		}
+
+		.btn-primary {
+			background-color: #ff6b6b;
+			border-color: #ff6b6b;
+		}
+
+		.btn-secondary {
+			background-color: #4ecdc4;
+		}
+
+		/* Pagination */
+		.pagination {
+			margin-top: 30px;
+			justify-content: center;
+		}
+
+		.page-item {
+			cursor: pointer;
+			border-radius: 5px;
+			margin: 0 5px;
+			background-color: #ccc;
+			color: #333;
+			border: none;
+			/* Remove border */
+			padding: 8px 12px;
+			/* Adjust padding */
+		}
+
+		.page-item.active,
+		.page-item:hover {
+			background-color: #ff6b6b;
+			color: #fff;
+		}
+
+		.email-form {
+			margin-top: 20px;
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			.container {
+				padding: 15px;
+			}
+
+			.btn {
+				font-size: 16px;
+				padding: 8px 16px;
+			}
+
+			.custom-h1 {
+				font-size: 30px;
+			}
+
+			.card-title {
+				font-size: 22px;
+				margin-bottom: 15px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container mt-5">
+		<div id="successToast" class="toast toast-above-form" role="alert" aria-live="assertive" aria-atomic="true"
+			data-delay="5000"
+			style="background-color: #5cb85c; color: #fff; border-radius: 5px; padding: 10px; font-size: 18px;">
+			<strong>Success! Mail sent successfully!</strong>
+		</div>
+		<h1 class="text-center text-primary custom-h1">Water Inventory App</h1>
+		<div class="row mt-5">
+			<div class="col-lg-4">
+				<div class="card">
+					<div class="card-body text-center">
+						<h2 class="card-title text-primary">Filters</h2>
+						<form action="/get-with-filters" method="post">
+							<div class="form-group">
+								<label for="date" class="custom-form-label">Select Month and Year:</label>
+								<input type="month" name="date" id="selectedDate"
+									class="form-control custom-form-control">
+							</div>
+							<div class="form-group">
+								<label for="vendor-name" class="custom-form-label">Vendor Name:</label>
+								<select id="vendor-name" name="vendorId" class="form-control custom-form-control">
+									<option value="0" selected>Select</option>
+									<option th:each="vendor : ${allVendors}" th:value="${vendor.vendorId}"
+										th:text="${vendor.vendorname}">
+									</option>
+								</select>
+							</div>
+							<input type="hidden" name="page" value="0" />
+							<div class="form-group">
+								<button type="submit" class="btn btn-primary custom-btn">Filter</button>
+
+								<button type="reset" class="btn btn-secondary custom-btn"
+									onclick="window.location.href='/'">Refresh</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-8">
+				<div class="card">
+					<div class="card-body">
+						<div class="text-center mb-3">
+							<button type="button" class="btn btn-primary custom-btn"
+								onclick="window.location.href='/add-vendor-data'">Add Vendor</button>
+							<button type="button" class="btn btn-primary custom-btn"
+								onclick="window.location.href='/add-water-inventory'">Add Inventory</button>
+						</div>
+						<table class="table table-bordered table-striped">
+							<thead class="bg-primary text-white">
+								<tr th:if="${not listOfInventoryBydateByVendorname.empty}">
+									<th class="custom-form-label">Vendor Name</th>
+									<th class="custom-form-label">Date</th>
+									<th class="custom-form-label">Quantity</th>
+									<th class="custom-form-label">Price</th>
+									<th class="custom-form-label">Total Price</th>
+								</tr>
+								<div th:if="${listOfInventoryBydateByVendorname.empty}" class="table-responsive">
+									<table class="table table-bordered table-striped">
+										<tbody>
+											<tr>
+												<td colspan="5" class="text-center">No data found for the selected
+													filters.
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</thead>
+							<tbody>
+								<tr th:each="inventory: ${listOfInventoryBydateByVendorname.content}">
+									<td th:text="${inventory.vendorname}" />
+									<td th:text="${inventory.date}" />
+									<td th:text="${inventory.quantity}" />
+									<td th:text="${inventory.price}" />
+									<td th:text="${inventory.totalPrice}" />
+								</tr>
+							</tbody>
+						</table>
+						<nav aria-label="Page navigation" th:if="${not listOfInventoryBydateByVendorname.empty}">
+							<ul class="pagination">
+								<li class="page-item" th:classappend="${currentPage > 0 ? 'enabled' : 'disabled'}">
+									<form action="/get-with-filters" method="post">
+										<input type="hidden" name="vendorId" th:value="${vendorId}" />
+										<input type="hidden" name="date" th:value=${vendorDate} />
+										<input type="hidden" name="page" th:value="${currentPage - 1}" />
+										<button type="submit" class="page-item" th:disabled="${currentPage == 0}">
+											Previous
+										</button>
+									</form>
+								</li>
+								<li class="page-item"
+									th:each="i : ${#numbers.sequence(0, listOfInventoryBydateByVendorname.totalPages - 1)}"
+									th:classappend="${currentPage == i ? 'active' : ''}">
+									<form action="/get-with-filters" method="post">
+										<input type="hidden" name="vendorId" th:value=${vendorId} />
+										<input type="hidden" name="date" th:value=${vendorDate} />
+										<input type="hidden" name="page" th:value=${i} />
+										<button type="submit" class="page-item">
+											<span th:text="${i + 1}"></span>
+										</button>
+									</form>
+								</li>
+								<li class="page-item"
+									th:classappend="${currentPage >= listOfInventoryBydateByVendorname.totalPages - 1 ? 'disabled' : ''}">
+									<form action="/get-with-filters" method="post">
+										<input type="hidden" name="vendorId" th:value="${vendorId}" />
+										<input type="hidden" name="date" th:value=${vendorDate} />
+										<input type="hidden" name="page" th:value="${currentPage + 1}" />
+										<button type="submit" class="page-item"
+											th:disabled="${currentPage >= listOfInventoryBydateByVendorname.totalPages - 1}">
+											Next
+										</button>
+									</form>
+								</li>
+							</ul>
+						</nav>
+						<div>
+							<form action="/sendemail-withfilters" method="post" class="email" id="email"
+								th:if="${not listOfInventoryBydateByVendorname.empty}">
+								<input type="hidden" name="vendorId" th:value=${vendorId} />
+								<input type="hidden" name="date" th:value=${vendorDate} />
+								<label class="custom-form-label" for="email"> Email:- </label>
+								<input type="text" id="email" name="email" required />
+								<button type="submit" class="btn btn-primary">Send</button>
+								<button type="reset" class="btn btn-secondary custom-btn"
+									onclick="window.location.href='/'">Back</button>
+
+							</form>
+						</div>
+					</div>
+				</div>
+				<form action="/generate-pdf" method="post" th:if="${not listOfInventoryBydateByVendorname.empty}">
+					<input type="hidden" name="vendorId" th:value="${vendorId}" />
+					<input type="hidden" name="date" th:value=${vendorDate} />
+					<button class="btn btn-primary">Export</button>
+				</form>
+			</div>
+		</div>
+
+	</div>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+
+		const form = document.getElementById('email');
+		const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+		const duplicateToast = new bootstrap.Toast(document.getElementById('duplicateToast'));
+		const messageDiv = document.getElementById('messageDiv');
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const formData = new FormData(form);
+			const response = await fetch('/sendemail-withfilters', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (response.ok) {
+				const message = await response.text();
+				if (response.status === 200) {
+					successToast.show(); // Show success message for a new vendor
+					form.reset();
+				} else if (response.status === 500) {
+					duplicateToast.show(); // Show duplicate message for an existing vendor
+				} else {
+					showMessage(message, 'alert-warning'); // Display other messages or errors
+				}
+			} else {
+				showMessage('error while sending a mail', 'alert-danger');
+			}
+		});
+		function showMessage(text, className) {
+			messageDiv.innerHTML = `<div class="alert ${className}" role="alert">${text}</div>`;
+			messageDiv.style.display = 'block';
+			setTimeout(() => {
+				messageDiv.innerHTML = '';
+				messageDiv.style.display = 'none';
+			}, 4000);
+		}
+
+	</script>
+
+</body>
+
+</html>
