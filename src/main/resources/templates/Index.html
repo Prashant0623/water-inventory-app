@@ -153,6 +153,8 @@
 										th:text="${vendor.vendorname}">
 									</option>
 								</select>
+
+								<label id="selectedVendorLabel" class="custom-form-label"></label>
 							</div>
 							<input type="hidden" name="page" value="0" />
 							<div class="form-group">
@@ -176,16 +178,14 @@
 						</div>
 						<table class="table table-bordered table-striped">
 							<thead class="bg-primary text-white">
-								<tr
-									th:if="${listOfInventoryBydateByVendorname != null and not listOfInventoryBydateByVendorname.empty}">
+								<tr th:if="${not listOfInventoryBydateByVendorname.empty}">
 									<th class="custom-form-label">Vendor Name</th>
 									<th class="custom-form-label">Date</th>
 									<th class="custom-form-label">Quantity</th>
 									<th class="custom-form-label">Price</th>
 									<th class="custom-form-label">Total Price</th>
 								</tr>
-								<div th:if="${listOfInventoryBydateByVendorname != null and listOfInventoryBydateByVendorname.empty}"
-									class="table-responsive">
+								<div th:if="${listOfInventoryBydateByVendorname.empty}" class="table-responsive">
 									<table class="table table-bordered table-striped">
 										<tbody>
 											<tr>
@@ -198,7 +198,7 @@
 								</div>
 							</thead>
 							<tbody>
-								<tr th:each="inventory: ${listOfInventoryBydateByVendorname}">
+								<tr th:each="inventory: ${listOfInventoryBydateByVendorname.content}">
 									<td th:text="${inventory.vendorname}" />
 									<td th:text="${inventory.date}" />
 									<td th:text="${inventory.quantity}" />
@@ -207,7 +207,7 @@
 								</tr>
 							</tbody>
 						</table>
-						<nav aria-label="Page navigation">
+						<nav aria-label="Page navigation" th:if="${not listOfInventoryBydateByVendorname.empty}">
 							<ul class="pagination">
 								<li class="page-item" th:classappend="${currentPage > 0 ? 'enabled' : 'disabled'}">
 									<form action="/get-with-filters" method="post">
@@ -310,7 +310,6 @@
 				messageDiv.style.display = 'none';
 			}, 4000);
 		}
-
 	</script>
 
 </body>
