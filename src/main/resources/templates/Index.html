@@ -178,12 +178,12 @@
 						</div>
 						<table class="table table-bordered table-striped">
 							<thead class="bg-primary text-white">
-								<tr th:if="${not listOfInventoryBydateByVendorname.empty}">
-									<th class="custom-form-label">Vendor Name</th>
-									<th class="custom-form-label">Date</th>
-									<th class="custom-form-label">Quantity</th>
-									<th class="custom-form-label">Price</th>
-									<th class="custom-form-label">Total Price</th>
+
+								<th class="custom-form-label">Vendor Name</th>
+								<th class="custom-form-label">Date</th>
+								<th class="custom-form-label">Quantity</th>
+								<th class="custom-form-label">Price</th>
+								<th class="custom-form-label">Total Price</th>
 								</tr>
 								<div th:if="${listOfInventoryBydateByVendorname.empty}" class="table-responsive">
 									<table class="table table-bordered table-striped">
@@ -207,7 +207,7 @@
 								</tr>
 							</tbody>
 						</table>
-						<nav aria-label="Page navigation" th:if="${not listOfInventoryBydateByVendorname.empty}">
+						<nav aria-label="Page navigation">
 							<ul class="pagination">
 								<li class="page-item" th:classappend="${currentPage > 0 ? 'enabled' : 'disabled'}">
 									<form action="/get-with-filters" method="post">
@@ -246,8 +246,7 @@
 							</ul>
 						</nav>
 						<div>
-							<form action="/sendemail-withfilters" method="post" class="email" id="email"
-								th:if="${not listOfInventoryBydateByVendorname.empty}">
+							<form action="/sendemail-withfilters" method="post" class="email" id="email">
 								<input type="hidden" name="vendorId" th:value=${vendorId} />
 								<input type="hidden" name="date" th:value=${vendorDate} />
 								<label class="custom-form-label" for="email"> Email:- </label>
@@ -260,7 +259,7 @@
 						</div>
 					</div>
 				</div>
-				<form action="/generate-pdf" method="post" th:if="${not listOfInventoryBydateByVendorname.empty}">
+				<form action="/generate-pdf" method="post">
 					<input type="hidden" name="vendorId" th:value="${vendorId}" />
 					<input type="hidden" name="date" th:value=${vendorDate} />
 					<button class="btn btn-primary">Export</button>
