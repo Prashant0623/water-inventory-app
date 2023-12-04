@@ -176,14 +176,16 @@
 						</div>
 						<table class="table table-bordered table-striped">
 							<thead class="bg-primary text-white">
-								<tr th:if="${not listOfInventoryBydateByVendorname.empty}">
+								<tr
+									th:if="${listOfInventoryBydateByVendorname != null and not listOfInventoryBydateByVendorname.empty}">
 									<th class="custom-form-label">Vendor Name</th>
 									<th class="custom-form-label">Date</th>
 									<th class="custom-form-label">Quantity</th>
 									<th class="custom-form-label">Price</th>
 									<th class="custom-form-label">Total Price</th>
 								</tr>
-								<div th:if="${listOfInventoryBydateByVendorname.empty}" class="table-responsive">
+								<div th:if="${listOfInventoryBydateByVendorname != null and listOfInventoryBydateByVendorname.empty}"
+									class="table-responsive">
 									<table class="table table-bordered table-striped">
 										<tbody>
 											<tr>
