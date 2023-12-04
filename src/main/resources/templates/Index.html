@@ -198,7 +198,7 @@
 								</div>
 							</thead>
 							<tbody>
-								<tr th:each="inventory: ${listOfInventoryBydateByVendorname.content}">
+								<tr th:each="inventory: ${listOfInventoryBydateByVendorname}">
 									<td th:text="${inventory.vendorname}" />
 									<td th:text="${inventory.date}" />
 									<td th:text="${inventory.quantity}" />
@@ -207,7 +207,7 @@
 								</tr>
 							</tbody>
 						</table>
-						<nav aria-label="Page navigation" th:if="${not listOfInventoryBydateByVendorname.empty}">
+						<nav aria-label="Page navigation">
 							<ul class="pagination">
 								<li class="page-item" th:classappend="${currentPage > 0 ? 'enabled' : 'disabled'}">
 									<form action="/get-with-filters" method="post">
