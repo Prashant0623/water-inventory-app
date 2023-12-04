@@ -10,7 +10,7 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.Prashant.WaterInventory</groupId>
-	<artifactId>demoApp</artifactId>
+	<artifactId>WaterInventory</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>WaterInventory</name>
 	<description>create a watercamper log for record data</description>
